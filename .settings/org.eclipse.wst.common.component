@@ -2,6 +2,7 @@
     <wb-module deploy-name="SMSApp">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/resource"/>
         <property name="context-root" value="SMSApp"/>
         <property name="java-output-path" value="/SMSApp/build/classes"/>
     </wb-module>
