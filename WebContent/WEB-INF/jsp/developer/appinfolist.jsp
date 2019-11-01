@@ -13,8 +13,8 @@
 				<div class="clearfix"></div>
 			</div>
 			<div class="x_content">
-				<form method="post" action="list">
-					<input type="hidden" name="pageIndex" value="1" />
+				<form method="get" action="${pageContext.request.contextPath }/dev/applist">
+				<input type="hidden" name="pageindex" value="1"/>
 			    <ul>
 					<li>
 						<div class="form-group">
@@ -24,7 +24,6 @@
 							</div>
 						</div>
 					</li>
-					
 					<li>
 						<div class="form-group">
 							<label class="control-label col-md-3 col-sm-3 col-xs-12">APP状态</label>

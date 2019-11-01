@@ -14,7 +14,7 @@ import com.entity.Devuser;
 import com.service.DevuserService;
 
 @Controller
-@RequestMapping("/dev")
+@RequestMapping("/user")
 public class Usercontroller {
 	@Resource
 	private DevuserService DevuserService;
@@ -33,11 +33,6 @@ public class Usercontroller {
 			throw new RuntimeException();
 		}
 		
-	}
-	
-	@RequestMapping(value="/applist")
-	public String applist() {
-		return "developer/appinfolist";
 	}
 	
 	@ExceptionHandler(value={RuntimeException.class})
