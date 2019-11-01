@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.AppinfoMapper">
+	<!-- 按条件分页查询 -->
+	<select id="selectAll"  resultType="appinfo">
+		select a.id,a.softwareName,a.APKName,a.supportROM,a.softwareSize,a.devId,a.status,
+		(select valueName from data_dictionary d where a.status=d.valueId AND d.typeCode='APP_STATUS') as statusName,
+		a.flatformId,(select valueName from data_dictionary d where a.flatformId=d.valueId AND d.typeCode='APP_FLATFORM') as flatformName,
+		a.categoryLevel1,(select categoryName from app_category c where c.id=a.categoryLevel1) as categoryLevel1Name,
+		a.categoryLevel2,(select categoryName from app_category c where c.id=a.categoryLevel2) as categoryLevel2Name,
+		a.categoryLevel3,(select categoryName from app_category c where c.id=a.categoryLevel3) as categoryLevel3Name,
+		a.downloads,a.onSaleDate,a.versionId,(select v.versionNo from app_version v where v.id=a.versionId ) as versionNo from app_info a  	
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test=" softwareName !=null and softwareName !=''">
+				a.softwareName=#{softwareName} 
+			</if>
+			
+			<if test="status !='' ">
+				AND a.status=#{status} 
+			</if>
+			
+			<if test=" flatformId !=0 and flatformId !=''">
+				AND flatformId=#{flatformId}
+			</if>
+			
+			<if test="categoryLevel1 !=0 and  categoryLevel1 !=''">
+				AND categoryLevel1=#{categoryLevel1}
+			</if>
+			
+			<if test="categoryLevel2 !=0 and categoryLevel2 !=''">
+				AND categoryLevel2=#{categoryLevel2}
+			</if>
+			
+			<if test="categoryLevel3 !=0 and  categoryLevel3 !=''">
+				AND categoryLevel3=#{categoryLevel3}
+			</if>
+		</trim>
+		LIMIT #{pageindex},#{pagesize}
+	</select>
+	
+	<!-- 总数量 -->
+	<select id="Count" resultType="Integer">
+		SELECT COUNT(1) FROM app_info
+	</select>
+	
+	<!-- 状态 -->
+	<select id="selectdictionary" resultType="datadictionary">
+		SELECT * FROM data_dictionary WHERE typeCode='APP_STATUS'
+	</select>
+	
+	<!-- 平台 -->
+	<select id="selectpt" resultType="datadictionary">
+		SELECT * FROM data_dictionary WHERE typeCode='APP_FLATFORM'
+	</select>
+	
+	<!-- 一级菜单 -->
+	<select id="selectcd" resultType="appcategory">
+		SELECT * FROM app_category where parentId IS NULL
+	</select>
+	
+	<!-- 二级菜单 -->
+	<select id="selectecd" resultType="appcategory">
+		SELECT * FROM app_category where parentId =#{id}
+	</select>
+	
+	<!-- 历史版本列表 -->
+	<select id="selectversion" resultType="appversion">
+		SELECT a.*,(SELECT i.softwareName  from app_info i WHERE a.appId=i.id) as appName,
+		(SELECT d.valueName from data_dictionary d WHERE a.publishStatus=d.valueId AND d.typeCode='PUBLISH_STATUS') as publishStatusName 
+		FROM app_version a WHERE a.appId=#{id}
+	</select>
+	
+	<!-- 新增版本列表 -->
+	<insert id="addversioninfo" parameterType="appversion">
+		INSERT INTO app_version(appId,versionNo,versionInfo,publishStatus,downloadLink,versionSize,
+		createdBy,creationDate,modifyBy,modifyDate,apkLocPath,apkFileName)
+		VALUES(#{appId},#{versionNo},#{versionInfo},#{publishStatus},#{downloadLink},#{versionSize},#{createdBy},#{creationDate},#{modifyBy},#{modifyDate},#{apkLocPath},#{apkFileName})
+	</insert>
+	
+	<!-- 最新版本 -->
+	<update id="updateversionId">
+		UPDATE app_info SET versionId=#{vid} WHERE id=#{aid}
+	</update>
+	
+	<!--查询版本ID -->
+	<select id="selectversionID" resultType="appversion">
+		SELECT * FROM app_version WHERE appId=#{appId} AND versionNo=#{versionNo}
+	</select>
+</mapper>
