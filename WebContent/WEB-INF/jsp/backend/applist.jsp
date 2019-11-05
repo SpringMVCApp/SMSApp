@@ -14,8 +14,8 @@
 				<div class="clearfix"></div>
 			</div>
 			<div class="x_content">
-				<form method="post" action="list">
-					<input type="hidden" name="pageIndex" value="1" />
+				<form method="post" action="applist">
+					<input type="hidden" name="pageindex" value="1" />
 			    <ul>
 					<li>
 						<div class="form-group">

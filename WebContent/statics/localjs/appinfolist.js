@@ -102,8 +102,8 @@ $(document).on("click",".saleSwichOpen,.saleSwichClose",function(){
 
 var saleSwitchAjax = function(appId,obj){
 	$.ajax({
-		type:"PUT",
-		url:appId+"/sale.json",
+		type:"GET",
+		url:"sale?appid="+appId+"&zt="+obj.attr("saleSwitch"),
 		dataType:"json",
 		success:function(data){
 			/*
@@ -112,7 +112,7 @@ var saleSwitchAjax = function(appId,obj){
 			 * appId:appId
 			 * errorCode:param000001
 			 */
-			if(data.errorCode === '0'){
+			if(data.errorCode === "0"){
 				if(data.resultMsg === "success"){//操作成功
 					if("open" === obj.attr("saleSwitch")){
 						//alert("恭喜您，【"+obj.attr("appsoftwarename")+"】的【上架】操作成功");
@@ -172,7 +172,7 @@ var saleSwitchAjax = function(appId,obj){
 
 $(".viewApp").on("click",function(){
 	var obj = $(this);
-	window.location.href="appview/"+ obj.attr("appinfoid");
+	window.location.href="appview?aid="+ obj.attr("appinfoid");
 });
 
 $(".deleteApp").on("click",function(){
@@ -180,7 +180,7 @@ $(".deleteApp").on("click",function(){
 	if(confirm("你确定要删除APP应用【"+obj.attr("appsoftwarename")+"】及其所有的版本吗？")){
 		$.ajax({
 			type:"GET",
-			url:"delapp.json",
+			url:"delapp",
 			data:{id:obj.attr("appinfoid")},
 			dataType:"json",
 			success:function(data){

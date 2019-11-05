@@ -49,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectdictionary" resultType="datadictionary">
 		SELECT * FROM data_dictionary WHERE typeCode='APP_STATUS'
 	</select>
-	
+		
 	<!-- 平台 -->
 	<select id="selectpt" resultType="datadictionary">
 		SELECT * FROM data_dictionary WHERE typeCode='APP_FLATFORM'
@@ -88,4 +88,81 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="selectversionID" resultType="appversion">
 		SELECT * FROM app_version WHERE appId=#{appId} AND versionNo=#{versionNo}
 	</select>
+	
+	<!-- 按版本ID查询 -->
+	<select id="versionID" resultType="appversion">
+		SELECT * FROM app_version WHERE id=#{id}
+	</select>
+	
+	<!-- 修改版本 -->
+	<update id="versionUpdate" parameterType="appversion">
+		UPDATE app_version SET versionNo=#{versionNo},versionSize=#{versionSize},versionInfo=#{versionInfo},apkLocPath=#{apkLocPath} WHERE id=#{id}
+	</update>
+	
+	<!-- 按id查询appinfo -->
+	<select id="selectAppinfoId" resultType="appinfo">
+		select a.*,(select valueName from data_dictionary d where a.status=d.valueId AND d.typeCode='APP_STATUS') as statusName,
+		a.flatformId,(select valueName from data_dictionary d where a.flatformId=d.valueId AND d.typeCode='APP_FLATFORM') as flatformName,
+		a.categoryLevel1,(select categoryName from app_category c where c.id=a.categoryLevel1) as categoryLevel1Name,
+		a.categoryLevel2,(select categoryName from app_category c where c.id=a.categoryLevel2) as categoryLevel2Name,
+		a.categoryLevel3,(select categoryName from app_category c where c.id=a.categoryLevel3) as categoryLevel3Name,
+		a.downloads,a.onSaleDate,a.versionId,(select v.versionNo from app_version v where v.id=a.versionId ) as versionNo from app_info a WHERE a.id=#{id}
+	</select>
+	
+	<!-- 加载平台 -->
+	<select id="selectdata" resultType="datadictionary">
+		SELECT * FROM data_dictionary WHERE typeCode=#{typeCode}
+	</select>
+	
+	<!-- 加載二级菜单 -->
+	<select id="seleerjcd" resultType="appcategory">
+		SELECT * FROM app_category where 
+		<if test="id==0 ">
+			 parentId is null
+		</if>
+		<if test="id !=0">
+			parentId =#{id}
+		</if>
+	</select>
+	
+	<!-- 修改App基本信息 -->
+	<update id="updateappinfo" parameterType="appinfo">
+		UPDATE app_info SET softwareName=#{softwareName},APKName=#{APKName},supportROM=#{supportROM},interfaceLanguage=#{interfaceLanguage},
+		softwareSize=#{softwareSize},appInfo=#{appInfo},status=#{status},flatformId=#{flatformId},categoryLevel3=#{categoryLevel3},downloads=#{downloads},
+		modifyBy=#{modifyBy},
+		modifyDate=#{modifyDate},categoryLevel1=#{categoryLevel1},categoryLevel2=#{categoryLevel2} WHERE id=#{id}
+	</update>
+	
+	<!-- 删除App信息 -->
+	<delete id="deleteappinfo">	
+		DELETE FROM app_info WHERE id=#{id}
+	</delete>
+	
+	<!-- 新增App信息 -->
+	<insert id="addAppinfo" parameterType="appinfo">
+		INSERT INTO app_info(softwareName,APKName,supportROM,interfaceLanguage,
+		softwareSize,devId,appInfo,status,flatformId,categoryLevel3,downloads,
+		createdBy,creationDate,categoryLevel1,categoryLevel2,logoLocPath)
+		VALUES(#{softwareName},#{APKName},#{supportROM},#{interfaceLanguage},
+		#{softwareSize},#{devId},#{appInfo},#{status},#{flatformId},#{categoryLevel3},
+		#{downloads},#{createdBy},#{creationDate},#{categoryLevel1},#{categoryLevel2},
+		#{logoLocPath})
+	</insert>
+	
+	<!-- 上下架 -->
+	<update id="sale" parameterType="appinfo">
+		UPDATE app_info 
+		<set>
+			<if test="onSaleDate !=null">
+				onSaleDate=#{onSaleDate},
+			</if>
+			<if test="offSaleDate !=null">
+				offSaleDate=#{offSaleDate},
+			</if>
+			<if test="status !=0">
+				status=#{status}
+			</if>
+		</set>
+		WHERE id=#{id}
+	</update>
 </mapper>

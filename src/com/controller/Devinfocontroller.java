@@ -1,11 +1,14 @@
 package com.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.entity.Appcategory;
 import com.entity.Appinfo;
 import com.entity.Appversion;
@@ -22,6 +26,7 @@ import com.entity.Datadictionary;
 import com.entity.Devuser;
 import com.entity.Page;
 import com.service.AppinfoService;
+import com.sun.java.swing.plaf.motif.resources.motif;
 import com.sun.org.apache.xpath.internal.operations.And;
 
 @Controller
@@ -131,13 +136,158 @@ public class Devinfocontroller {
 		return "developer/appversionadd";
 	}
 	
-	//修改APP版本信息
+	//修改页码显示APP版本信息
 	@RequestMapping(value="/versionmodify")
-	public String appversionmodify(@RequestParam("vid")String vid,@RequestParam("aid")String aid,Model model) {
+	public String appversionmodify(@RequestParam(value="vid")String vid,@RequestParam(value="aid",required=false)String aid,Model model) {
 		int id=Integer.parseInt(aid);
+		int Vid=Integer.parseInt(vid);
+		Appversion appversion=appinfoService.versionID(Vid);
+		model.addAttribute("appVersion", appversion);
 		List<Appversion>list=appinfoService.selectversion(id);
 		model.addAttribute("appVersionList", list);
 		return "developer/appversionmodify";
 	}
 	
+	//修改App版本
+	@RequestMapping(value="/appversionmodifysave")
+	public String appversionmodifysave(@ModelAttribute("appversion") Appversion appversion,HttpSession session,Model model) {
+		appversion.setModifyDate(new Date());
+		appversion.setModifyBy(((Devuser)session.getAttribute("devUserSession")).getId());
+		int count=appinfoService.versionUpdate(appversion);
+		if(count>0) {
+			model.addAttribute("vid", appversion.getId());
+			model.addAttribute("aid", appversion.getAppId());
+			return "redirect:/dev/versionmodify";
+		}
+		return "developer/appversionmodify";
+	}
+	
+	//显示App基本信息
+	@RequestMapping(value="/appinfomodify")
+	public String appinfomodify(@RequestParam("id")String id,Model model) {
+		int aid=Integer.parseInt(id);
+		Appinfo appinfo=appinfoService.selectAppinfoId(aid);
+		model.addAttribute("appInfo", appinfo);
+		return "developer/appinfomodify";
+	}
+	
+	//加载平台
+	@RequestMapping(value="/datadictionarylist",produces= {"application/json;charset=UTF-8"})
+	@ResponseBody
+	public Object datadictionarylist(@RequestParam("tcode")String tcode) {
+		String data="";
+		List<Datadictionary>list=appinfoService.selectdata(tcode);
+		if(list!=null) {
+			data=JSON.toJSONString(list);
+		}
+		return data;
+	}
+	
+	//加载二級菜單
+		@RequestMapping(value="/levellist",produces= {"application/json;charset=UTF-8"})
+		@ResponseBody
+		public Object levellist(@RequestParam("pid")String pid) {
+			String data="";
+			List<Appcategory>list=appinfoService.seleerjcd(pid);
+			if(list!=null) {
+				data=JSON.toJSONString(list);
+			}
+			return data;
+		}
+		//修改App基本信息
+		@RequestMapping(value="/appinfomodifysave")
+		public String appinfomodifysave(@ModelAttribute("appinfo") Appinfo appinfo,HttpSession session,Model model) {
+			appinfo.setModifyBy(((Devuser)session.getAttribute("devUserSession")).getId());
+			appinfo.setModifyDate(new Date());
+			int count=appinfoService.updateappinfo(appinfo);
+			if(count>0) {
+				return "redirect:/dev/applist";
+			}
+			Appinfo appinfo1=appinfoService.selectAppinfoId(appinfo.getId());
+			model.addAttribute("appInfo", appinfo1);
+			return "developer/appinfomodify";
+		}
+		//查看App信息
+		@RequestMapping(value="/appview")
+		public String appview(@RequestParam("aid")String aid,Model model) {
+			int id=Integer.parseInt(aid);
+			List<Appversion>list=appinfoService.selectversion(id);
+			 Appinfo appinfo=appinfoService.selectAppinfoId(id);
+			 model.addAttribute("appVersionList", list);
+			 model.addAttribute("appInfo", appinfo);
+			return "developer/appinfoview";
+		}
+		
+		//删除app信息
+		@RequestMapping(value="/delapp")
+		@ResponseBody
+		public Object delapp(@RequestParam("id")String id) {
+			int aid=Integer.parseInt(id);
+			String data="";
+			int count=appinfoService.deleteappinfo(aid);
+			if(id==null) {
+				data="notexist";
+			}else {
+				if(count>0) {
+					data="true";
+				}else {
+					data="false";
+				}
+			}
+			String result=JSON.toJSONString(data);
+			return result;
+			
+		}
+		//跳转新增APP基础信息 
+		@RequestMapping(value="/appinfoadd")
+		public String appinfoadd() {
+			return "developer/appinfoadd";
+		}
+		
+		//新增APP基础信息 
+		@RequestMapping(value="/appinfoaddsave")
+		public String appinfoaddsave(@ModelAttribute("appinfo") Appinfo appinfo,Model model,HttpSession session) {
+			appinfo.setDevId(((Devuser)session.getAttribute("devUserSession")).getId());
+			appinfo.setCreationDate(new Date());
+			appinfo.setCreatedBy(((Devuser)session.getAttribute("devUserSession")).getId());
+			int count=appinfoService.addAppinfo(appinfo);
+			if(count>0) {
+				return "redirect:/dev/applist";
+			}
+			return "/dev/appinfoadd";
+		}
+		
+		//上下架
+		@RequestMapping(value="/sale",produces= {"application/json;charset=UTF-8"})
+		@ResponseBody
+		public Object appId(@RequestParam("appid")String appid,@RequestParam("zt")String zt) {
+			HashMap<String, String>hashMap=new HashMap<String,String>();
+			hashMap.put("errorCode", "0");
+			int aid=Integer.parseInt(appid);
+			Appinfo appinfo=new Appinfo();
+			if(zt.equals("open")) {
+				appinfo.setOnSaleDate(new Date());
+				appinfo.setStatus(4);
+				appinfo.setId(aid);
+				int count=appinfoService.sale(appinfo);
+				if(count>0) {
+					hashMap.put("resultMsg", "success");
+				}else {
+					hashMap.put("resultMsg", "failed");
+				}
+				
+			}else if (zt.equals("close")) {
+				appinfo.setOffSaleDate(new Date());
+				appinfo.setStatus(5);
+				appinfo.setId(aid);
+				int count=appinfoService.sale(appinfo);
+				if(count>0) {
+					hashMap.put("resultMsg", "success");
+				}else {
+					hashMap.put("resultMsg", "failed");
+				}
+				
+			}
+			return JSONArray.toJSONString(hashMap);
+		}
 }

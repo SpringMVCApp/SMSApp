@@ -1,5 +1,6 @@
 package com.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -56,6 +57,43 @@ public class AppinfoServiceimpl implements AppinfoService{
 	//查询版本ID
 	public Appversion selectversionID(int appId,String versionNo) {
 		return appinfoMapper.selectversionID(appId,versionNo);
+	}
+	//按版本ID查询
+	public Appversion versionID(int id) {
+		return appinfoMapper.versionID(id);
+	}
+	//修改版本
+	public int versionUpdate(Appversion appversion) {
+		return appinfoMapper.versionUpdate(appversion);
+	}
+	//按id查询appinfo
+	public Appinfo selectAppinfoId(int id) {
+		return appinfoMapper.selectAppinfoId(id);
+	}
+	//加载平台
+	public List<Datadictionary> selectdata(String typeCode) {
+		return appinfoMapper.selectdata(typeCode);
+	}
+	//加載二级菜单
+	public List<Appcategory> seleerjcd(String id) {
+		return appinfoMapper.seleerjcd(id);
+	}
+	
+	//修改App基本信息
+	public int updateappinfo(Appinfo appinfo) {
+		return appinfoMapper.updateappinfo(appinfo);
+	}
+	//删除App信息
+	public int deleteappinfo(int id) {
+		return appinfoMapper.deleteappinfo(id);
+	}
+	//新增App信息
+	public int addAppinfo(Appinfo appinfo) {
+		return appinfoMapper.addAppinfo(appinfo);
+	}
+	//上下架
+	public int sale(Appinfo appinfo) {
+		return appinfoMapper.sale(appinfo);
 	}
 
 }
