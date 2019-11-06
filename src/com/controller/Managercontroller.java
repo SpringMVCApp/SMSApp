@@ -28,7 +28,6 @@ public class Managercontroller {
 	public String dologin(@RequestParam("userCode")String userCode,@RequestParam("userPassword")String userPassword,HttpSession session) {
 		Backenduser backenduser=BackendmsService.dologin(userCode, userPassword);
 		if(backenduser!=null) {
-			System.out.println(backenduser);
 			session.setAttribute("userSession", backenduser);
 			return "backend/main";
 		}else {
@@ -46,7 +45,7 @@ public class Managercontroller {
 	@RequestMapping(value="/logout")
 	public String logout(HttpSession session) {
 		session.removeAttribute("userSession");
-		return "backendlogin";
+		return "index";
 	}
 	
 	

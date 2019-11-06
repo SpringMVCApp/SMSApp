@@ -45,7 +45,7 @@ public class Usercontroller {
 	@RequestMapping(value="/logout")
 	public String logout(HttpSession session) {
 		session.removeAttribute("devUserSession");
-		return "devlogin";
+		return "index";
 	}
 	
 	@ExceptionHandler(value={RuntimeException.class})
