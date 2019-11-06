@@ -36,6 +36,19 @@ public class Managercontroller {
 		}
 	}
 	
+	//返回主页
+	@RequestMapping(value="/main")
+	public String main() {
+		return "backend/main";
+	}
+	
+	//退出返回登录页面
+	@RequestMapping(value="/logout")
+	public String logout(HttpSession session) {
+		session.removeAttribute("userSession");
+		return "backendlogin";
+	}
+	
 	
 	@ExceptionHandler(value={RuntimeException.class})
 	public String handlerException(){

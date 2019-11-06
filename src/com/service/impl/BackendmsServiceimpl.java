@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.dao.BackendMapper;
 import com.entity.Appcategory;
 import com.entity.Appinfo;
+import com.entity.Appversion;
 import com.entity.Backenduser;
 import com.entity.Datadictionary;
 import com.service.BackendmsService;
@@ -46,6 +47,21 @@ public class BackendmsServiceimpl implements BackendmsService{
 	//二级菜单
 	public List<Appcategory> selectecd(int id) {
 		return backendMapper.selectecd(id);
+	}
+
+	//通过ID查询appinfo
+	public Appinfo selectID(int aid) {
+		return backendMapper.selectID(aid);
+	}
+
+	//通过ID查询category
+	public Appversion selectversion(int id) {
+		return backendMapper.selectversion(id);
+	}
+
+	//审核
+	public int checksave(Appinfo appinfo) {
+		return backendMapper.checksave(appinfo);
 	}
 
 }

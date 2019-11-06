@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.entity.Appcategory;
 import com.entity.Appinfo;
+import com.entity.Appversion;
 import com.entity.Backenduser;
 import com.entity.Datadictionary;
 
@@ -31,5 +32,14 @@ public interface BackendmsService {
 	public List<Appcategory> selectcd();
 	
 	//二级菜单
-	public List<Appcategory> selectecd(@Param("id")int id);
+	public List<Appcategory> selectecd(int id);
+	
+	//通过ID查询appinfo
+	public Appinfo selectID(int aid);
+	
+	//通过ID查询category
+	public  Appversion selectversion(int id);
+	
+	//审核
+	public int checksave(Appinfo appinfo);
 }

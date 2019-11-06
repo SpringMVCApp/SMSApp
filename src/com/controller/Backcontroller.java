@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSON;
 import com.entity.Appcategory;
 import com.entity.Appinfo;
+import com.entity.Appversion;
 import com.entity.Datadictionary;
 import com.entity.Page;
 import com.service.BackendmsService;
@@ -85,5 +87,25 @@ public class Backcontroller {
     	}
     	return data;
     	
+    }
+    
+    @RequestMapping(value="/check")
+    public String check(@RequestParam("aid")String aid,@RequestParam("vid")String vid,Model model) {
+    	int aaid=Integer.parseInt(aid);
+    	int vvid=Integer.parseInt(vid);
+    	Appinfo appinfo=BackendmsService.selectID(aaid);
+    	Appversion appversion=BackendmsService.selectversion(vvid);
+    	model.addAttribute("appInfo", appinfo);
+    	model.addAttribute("appVersion", appversion);
+    	return "backend/appcheck";
+    }
+    
+    @RequestMapping(value="/checksave")
+    public String checksave(@ModelAttribute("appinfo")Appinfo appinfo) {
+    	int count=BackendmsService.checksave(appinfo);
+    	if(count>0) {
+    		return "redirect:/back/applist";
+    	}
+    	return "/back/check";
     }
 }
