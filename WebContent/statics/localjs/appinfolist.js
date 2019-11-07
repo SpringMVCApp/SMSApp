@@ -68,7 +68,7 @@ $(".modifyVersion").on("click",function(){
 	var versionid = obj.attr("versionid");
 	var appinfoid = obj.attr("appinfoid");
 	if(status == "1" || status == "3"){//待审核、审核未通过状态下才可以进行修改操作
-		if(versionid == null || versionid == ""){
+		if(versionid == 0 || versionid == ""){
 			alert("该APP应用无版本信息，请先增加版本信息！");
 		}else{
 			window.location.href="versionmodify?vid="+ versionid + "&aid="+ appinfoid;
@@ -184,12 +184,12 @@ $(".deleteApp").on("click",function(){
 			data:{id:obj.attr("appinfoid")},
 			dataType:"json",
 			success:function(data){
-				if(data.delResult == "true"){//删除成功：移除删除行
+				if(data == "true"){//删除成功：移除删除行
 					alert("删除成功");
 					obj.parents("tr").remove();
-				}else if(data.delResult == "false"){//删除失败
+				}else if(data == "false"){//删除失败
 					alert("对不起，删除AAP应用【"+obj.attr("appsoftwarename")+"】失败");
-				}else if(data.delResult == "notexist"){
+				}else if(data == "notexist"){
 					alert("对不起，APP应用【"+obj.attr("appsoftwarename")+"】不存在");
 				}
 			},

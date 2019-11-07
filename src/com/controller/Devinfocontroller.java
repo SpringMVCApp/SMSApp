@@ -1,14 +1,18 @@
 package com.controller;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -120,9 +125,39 @@ public class Devinfocontroller {
 	
 	//新增APP版本信息
 	@RequestMapping(value="/addversionsave")
-	public String addversionsave(@ModelAttribute("appversion") Appversion appversion,HttpSession session,Model model) {	
+	public String addversionsave(@ModelAttribute("appversion") Appversion appversion,HttpSession session,Model model
+			,@RequestParam(value = "attr", required = false) MultipartFile attach,HttpServletRequest request) {	
+		String logoPicPath = null;
+		String logoLocPath = null;
+		String fileName=null;
+		String oldFileName = attach.getOriginalFilename();// 原文件名
+		if ( attach.isEmpty()) {
+				String path = request.getSession().getServletContext()
+						.getRealPath("statics" + java.io.File.separator + "uploadfiles");
+				String prefix = FilenameUtils.getExtension(oldFileName);// 原文后缀
+				int filesize = 500000; // 50k
+				fileName = appversion.getVersionNo() + ".apk";// apk名称.apk
+				File targetFile = new File(path, fileName);
+				if (!targetFile.exists()) {
+					targetFile.mkdirs();
+				}
+				try {
+					attach.transferTo(targetFile);
+				} catch (Exception e) {
+					e.printStackTrace();	
+				}
+				
+				logoPicPath = request.getContextPath() + "/statics/uploadfiles/" + fileName;
+				logoLocPath = path + File.separator + fileName;
+			
+			
+			
+		}	
 		appversion.setCreatedBy(((Devuser)session.getAttribute("devUserSession")).getId());
 		appversion.setCreationDate(new Date());
+		appversion.setApkFileName(fileName);
+		appversion.setDownloadLink(logoPicPath);
+		appversion.setApkLocPath(logoLocPath);
 		int count =appinfoService.addversioninfo(appversion);
 		Appversion appversion2=appinfoService.selectversionID(appversion.getAppId(), appversion.getVersionNo());
 		if(count>0) {
@@ -151,6 +186,7 @@ public class Devinfocontroller {
 	//修改App版本
 	@RequestMapping(value="/appversionmodifysave")
 	public String appversionmodifysave(@ModelAttribute("appversion") Appversion appversion,HttpSession session,Model model) {
+		
 		appversion.setModifyDate(new Date());
 		appversion.setModifyBy(((Devuser)session.getAttribute("devUserSession")).getId());
 		int count=appinfoService.versionUpdate(appversion);
@@ -167,6 +203,8 @@ public class Devinfocontroller {
 	public String appinfomodify(@RequestParam("id")String id,Model model) {
 		int aid=Integer.parseInt(id);
 		Appinfo appinfo=appinfoService.selectAppinfoId(aid);
+		System.out.println(appinfo.getLogoLocPath()+"======================");
+		System.out.println(appinfo.getLogoPicPath()+"======================");
 		model.addAttribute("appInfo", appinfo);
 		return "developer/appinfomodify";
 	}
@@ -219,7 +257,7 @@ public class Devinfocontroller {
 		}
 		
 		//删除app信息
-		@RequestMapping(value="/delapp")
+		@RequestMapping(value="/delapp",produces= {"application/json;charset=UTF-8"})
 		@ResponseBody
 		public Object delapp(@RequestParam("id")String id) {
 			int aid=Integer.parseInt(id);
@@ -246,13 +284,46 @@ public class Devinfocontroller {
 		
 		//新增APP基础信息 
 		@RequestMapping(value="/appinfoaddsave")
-		public String appinfoaddsave(@ModelAttribute("appinfo") Appinfo appinfo,Model model,HttpSession session) {
-			appinfo.setDevId(((Devuser)session.getAttribute("devUserSession")).getId());
-			appinfo.setCreationDate(new Date());
-			appinfo.setCreatedBy(((Devuser)session.getAttribute("devUserSession")).getId());
+		public String appinfoaddsave(@ModelAttribute("appinfo") Appinfo appinfo,Model model,HttpSession session,@RequestParam(value = "attr", required = false) MultipartFile attach,HttpServletRequest request) {
+			String logoPicPath = null;
+			String logoLocPath = null;
+			String fileName=null;
+			String oldFileName = attach.getOriginalFilename();// 原文件名
+			System.out.println("原文件名:"+oldFileName);
+			System.out.println("emtpy======"+attach.isEmpty());
+			if ( !attach.isEmpty()) {
+				String path = request.getSession().getServletContext()
+						.getRealPath("statics" + java.io.File.separator + "uploadfiles");
+//				String oldFileName = attach.getOriginalFilename();// 原文件名
+				String prefix = FilenameUtils.getExtension(oldFileName);// 原文后缀
+				int filesize = 500000; // 50k
+					fileName = appinfo.getAPKName() + ".png";// apk名称.apk
+					File targetFile = new File(path, fileName);
+					if (!targetFile.exists()) {
+						targetFile.mkdirs();
+					}
+					try {
+						attach.transferTo(targetFile);
+					} catch (Exception e) {
+						e.printStackTrace();
+//						request.setAttribute("fileUploadError", Constants.FILEUPLOAD_ERROR_2);
+//						return "developer/appinfomodify";
+						
+					}
+					
+					logoPicPath = request.getContextPath() + "/statics/uploadfiles/" + fileName;
+					logoLocPath = path + File.separator + fileName;
+					appinfo.setAPKName(fileName);
+					appinfo.setLogoLocPath(logoLocPath);
+					appinfo.setLogoPicPath(logoPicPath);
+					appinfo.setDevId(((Devuser)session.getAttribute("devUserSession")).getId());
+					appinfo.setCreationDate(new Date());
+					appinfo.setCreatedBy(((Devuser)session.getAttribute("devUserSession")).getId());
 			int count=appinfoService.addAppinfo(appinfo);
 			if(count>0) {
 				return "redirect:/dev/applist";
+			}
+			
 			}
 			return "/dev/appinfoadd";
 		}
@@ -289,5 +360,13 @@ public class Devinfocontroller {
 				
 			}
 			return JSONArray.toJSONString(hashMap);
+		}
+		
+		@RequestMapping(value="/delfile",produces= {"application/json;charset=UTF-8"})
+		@ResponseBody
+		public String defile() {
+			String ss="success";
+			String data=JSON.toJSONString(ss);
+			return data;
 		}
 }

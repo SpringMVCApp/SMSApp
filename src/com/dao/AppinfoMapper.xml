@@ -142,10 +142,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<insert id="addAppinfo" parameterType="appinfo">
 		INSERT INTO app_info(softwareName,APKName,supportROM,interfaceLanguage,
 		softwareSize,devId,appInfo,status,flatformId,categoryLevel3,downloads,
-		createdBy,creationDate,categoryLevel1,categoryLevel2,logoLocPath)
+		createdBy,creationDate,categoryLevel1,categoryLevel2,logoPicPath,logoLocPath)
 		VALUES(#{softwareName},#{APKName},#{supportROM},#{interfaceLanguage},
 		#{softwareSize},#{devId},#{appInfo},#{status},#{flatformId},#{categoryLevel3},
-		#{downloads},#{createdBy},#{creationDate},#{categoryLevel1},#{categoryLevel2},
+		#{downloads},#{createdBy},#{creationDate},#{categoryLevel1},#{categoryLevel2},#{logoPicPath},
 		#{logoLocPath})
 	</insert>
 	
