@@ -34,7 +34,6 @@ public class Usercontroller {
 		}
 		
 	}
-	
 	//·µ»ØÖ÷Ò³
 	@RequestMapping(value="/main")
 	public String mian() {
@@ -46,6 +45,7 @@ public class Usercontroller {
 	public String logout(HttpSession session) {
 		session.removeAttribute("devUserSession");
 		return "index";
+		
 	}
 	
 	@ExceptionHandler(value={RuntimeException.class})
