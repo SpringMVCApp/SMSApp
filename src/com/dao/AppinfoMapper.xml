@@ -12,7 +12,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		a.categoryLevel2,(select categoryName from app_category c where c.id=a.categoryLevel2) as categoryLevel2Name,
 		a.categoryLevel3,(select categoryName from app_category c where c.id=a.categoryLevel3) as categoryLevel3Name,
 		a.downloads,a.onSaleDate,a.versionId,(select v.versionNo from app_version v where v.id=a.versionId ) as versionNo from app_info a  	
-		<trim prefix="where" prefixOverrides="and | or">
+		<trim prefix="where" prefixOverrides="and | or" >
 			<if test=" softwareName !=null and softwareName !=''">
 				a.softwareName=#{softwareName} 
 			</if>
